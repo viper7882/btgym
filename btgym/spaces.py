@@ -40,7 +40,7 @@ class DictSpace(spaces.Dict):
             spaces_dict:    [nested] dictionary of core Gym spaces.
         """
         super(DictSpace, self).__init__(spaces_dict)
-        self.shape = self._get_shape()
+        self._shape = self._get_shape()
 
     def _get_shape(self):
         return OrderedDict([(k, space.shape) for k, space in self.spaces.items()])

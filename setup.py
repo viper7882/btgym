@@ -20,7 +20,7 @@
 from setuptools import setup, find_packages
 
 packages = find_packages()
-packages = list(filter(lambda p: not p.startswith('btgym.research'), packages)) # removing due to syntax errors
+packages = list(filter(lambda p: not p.startswith('btgym_tf2.research'), packages)) # removing due to syntax errors
 
 setup(
     name='btgym',
@@ -28,11 +28,11 @@ setup(
     keywords='openai gym reinforcement learning backtrader portfolio trading ai finance',
     author='Andrew Muzikin',
     author_email='muzikinae@gmail.com',
-    url='https://github.com/Kismuz/btgym',
+    url='https://github.com/viper7882/btgym',
     project_urls={
-        'Documentation': 'https://kismuz.github.io/btgym/',
-        'Source': 'https://github.com/Kismuz/btgym',
-        'Tracker': 'https://github.com/Kismuz/btgym/issues',
+        'Documentation': 'https://viper7882.github.io/btgym/',
+        'Source': 'https://github.com/viper7882/btgym',
+        'Tracker': 'https://github.com/viper7882/btgym/issues',
     },
     license='GPLv3+',
     classifiers=[
@@ -52,19 +52,20 @@ setup(
     ],
     version='0.0.8',
     install_requires=[
-        'tensorflow>=1.5, <2',
+        'tensorflow',
         'opencv-python',
         'gym[atari]',
         'backtrader',
         'pyzmq',
-        'matplotlib<=2.0.2',
+        'matplotlib',
         'pillow',
         'numpy',
         'scipy',
         'pandas',
         'ipython',
         'psutil',
-        'logbook'
+        'logbook',
+        'pykalman'
     ],
     python_requires='>=3',
     include_package_data=True,

@@ -41,7 +41,7 @@ class DQN:
 
     def create_model(self):
         model = Sequential()
-        # state_shape  = list(self.env.observation_space.shape.items())[0][1]
+        # state_shape  = list(self.env.observation_space._shape.items())[0][1]
         # Reshaping for LSTM
         # state_shape=np.array(state_shape)
         # state_shape= np.reshape(state_shape, (30,4,1))

@@ -18,7 +18,7 @@ NormalisationState = namedtuple('NormalisationState', ['mean', 'variance', 'low_
 class BaseStrategy7(bt.Strategy):
     """
     Changes in gen.7:
-        Broker Stat Rework: (https://github.com/Kismuz/btgym/issues/117)
+        Broker Stat Rework: (https://github.com/viper7882/btgym/issues/117)
         +   PnL calculation had been change from 'Per Trade' evaluation to 'Per Filled Order' (AKA sub trade).
             The motivation was to make the reward denser, by introducing the realized pnl as soon as possible (next skip_frame)
             without having to wait for the trade to end (which is indicated by position crossing zero and is undetermined in time)
