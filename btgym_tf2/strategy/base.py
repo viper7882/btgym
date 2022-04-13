@@ -21,7 +21,7 @@ import backtrader as bt
 import backtrader.indicators as btind
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 
 import numpy as np
 from collections import deque
@@ -128,7 +128,7 @@ class BTgymBaseStrategy(bt.Strategy):
         leverage=1.0,
         gamma=gamma,
         reward_scale=reward_scale,
-        drawdown_call=10,  # finish episode when hitting drawdown treshghold , in percent.
+        drawdown_call=10,  # finish episode when hitting drawdown threshold , in percent.
         target_call=10,  # finish episode when reaching profit target, in percent.
         dataset_stat=None,  # Summary descriptive statistics for entire dataset and
         episode_stat=None,  # current episode. Got updated by server.
@@ -161,7 +161,7 @@ class BTgymBaseStrategy(bt.Strategy):
                     commission:         float, broker commission value, .01 stands for 1%
                     leverage:           broker leverage, default is 1.0
                     order_size:         dict of fixed order stakes (floats); keys should match assets names.
-                    drawdown_call:      finish episode when hitting this drawdown treshghold , in percent.
+                    drawdown_call:      finish episode when hitting this drawdown threshold , in percent.
                     target_call:        finish episode when reaching this profit target, in percent.
                     portfolio_actions:  possible agent actions.
                     skip_frame:         number of environment steps to skip before returning next response,
@@ -658,7 +658,7 @@ class BTgymBaseStrategy(bt.Strategy):
         defining necessary calculations and return arbitrary shaped tensors for every space mode.
 
         Note:
-            - 'data' referes to bt.startegy datafeeds and should be treated as such.
+            - 'data' referes to bt.strategy datafeeds and should be treated as such.
                 Datafeed Lines that are not default to BTgymStrategy should be explicitly defined by
                  __init__() or define_datalines().
         """

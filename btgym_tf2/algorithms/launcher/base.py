@@ -105,16 +105,21 @@ class Launcher():
                 gym_id=None,
             )
         )
+
+        log_dir='./tmp/btgym_aac_log'
+        os.makedirs(log_dir, exist_ok=True)
         self.cluster_config = dict(
             host='127.0.0.1',
             port=12222,
             num_workers=1,
             num_ps=1,
-            log_dir='./tmp/btgym_aac_log',
+            log_dir=log_dir,
             initial_ckpt_dir=None,
             log_ckpt_subdir='/current_train_checkpoint',
             num_envs=1,
         )
+
+
         self.policy_config = dict(
             class_ref=BaseAacPolicy,
             kwargs=dict(

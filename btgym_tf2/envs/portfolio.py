@@ -24,7 +24,7 @@ import copy
 
 import backtrader as bt
 
-from btgym import BTgymRendering, DictSpace, ActionDictSpace
+from btgym_tf2 import BTgymRendering, DictSpace, ActionDictSpace
 
 from btgym_tf2.rendering import BTgymNullRendering
 
@@ -34,7 +34,7 @@ from btgym_tf2.envs.base import BTgymEnv
 class PortfolioEnv(BTgymEnv):
     """
         OpenAI Gym API shell for Backtrader backtesting/trading library with multiply assets support.
-        Action space is dictionary of contionious  actions for every asset.
+        Action space is dictionary of continuous actions for every asset.
         This setup closely relates to continuous portfolio optimisation problem definition.
 
         Setup explanation:
@@ -456,7 +456,7 @@ class PortfolioEnv(BTgymEnv):
                     '\nAt least one of these is true:\n' +
                     'Action error: (space is {}, action sent is {}): {}\n' +
                     'Environment closed: {}\n' +
-                    'Network error [socket doesnt exists or closed]: {}\n' +
+                    'Network error [socket doesn\'t exists or closed]: {}\n' +
                     'Hint: forgot to call reset()?'
             ).format(
                 self.action_space, action, not self.action_space.contains(action),

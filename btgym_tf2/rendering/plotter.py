@@ -65,7 +65,7 @@ class DrawCerebro(multiprocessing.Process):
         Returns:
              rgb_array.
         """
-        fig = self.cerebro.plot(plotter=self.plotter,  # Modified above plotter class, doesnt actually saves anything.
+        fig = self.cerebro.plot(plotter=self.plotter,  # Modified above plotter class, doesn't actually save anything.
                                 savefig=True,
                                 width=self.width,
                                 height=self.height,

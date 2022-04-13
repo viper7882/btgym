@@ -185,7 +185,7 @@ class AMLDG_1d(AMLDG_1):
             while not done:
                 # self.log.warning('Roll #{}'.format(roll_num))
                 feed_dict = {}
-                wirte_model_summary = \
+                write_model_summary = \
                     self.local_steps % self.model_summary_freq == 0
 
                 self.episode_memory.add_batch(
@@ -228,7 +228,7 @@ class AMLDG_1d(AMLDG_1):
                         self.process_data(sess, test_data, is_train=True, pi=self.local_network_prime)
                     )
 
-                    if wirte_model_summary:
+                    if write_model_summary:
                         meta_fetches = [self.meta_train_op, self.model_summary_op, self.inc_step]
                     else:
                         meta_fetches = [self.meta_train_op, self.inc_step]
@@ -242,7 +242,7 @@ class AMLDG_1d(AMLDG_1):
 
                     # self.log.warning('Meta-opt. rollout ok.')
 
-                if wirte_model_summary:
+                if write_model_summary:
                     meta_model_summary = meta_fetched[-2]
                     model_summary = fetched[-1]
 

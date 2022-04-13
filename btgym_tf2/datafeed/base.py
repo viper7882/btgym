@@ -331,7 +331,7 @@ class BTgymBaseData:
         self.final_timestamp = self.data.index[-1].timestamp()
 
         if self.frozen_time_split is not None:
-            frozen_index = self.data.index.get_loc(self.frozen_time_split, method='ffill')
+            frozen_index = self.data.index.get_indexer([self.frozen_time_split], method='ffill')[0]
             self.frozen_split_timestamp = self.data.index[frozen_index].timestamp()
             self.set_global_timestamp(self.frozen_split_timestamp)
 
@@ -713,7 +713,7 @@ class BTgymBaseData:
             else:
                 adj_timedate = sample_first_day
 
-            first_row = self.data.index.get_loc(adj_timedate, method='nearest')
+            first_row = self.data.index.get_indexer([adj_timedate], method='nearest')[0]
 
             # Easy part:
             last_row = first_row + self.sample_num_records  # + 1
@@ -879,12 +879,12 @@ class BTgymBaseData:
             if self.start_00:
                 adj_timedate = sample_first_day.date()
                 self.log.debug('Start time adjusted to <00:00>')
-                first_row = self.data.index.get_loc(adj_timedate, method='nearest')
+                first_row = self.data.index.get_indexer([adj_timedate], method='nearest')[0]
 
             else:
                 adj_timedate = sample_first_day
 
-            # first_row = self.data.index.get_loc(adj_timedate, method='nearest')
+            # first_row = self.data.index.get_indexer([adj_timedate], method='nearest')[0]
 
             # Easy part:
             last_row = first_row + sample_num_records  # + 1
@@ -1065,12 +1065,12 @@ class BTgymBaseData:
             if self.start_00:
                 adj_timedate = sample_first_day.date()
                 self.log.debug('Start time adjusted to <00:00>')
-                first_row = self.data.index.get_loc(adj_timedate, method='nearest')
+                first_row = self.data.index.get_indexer([adj_timedate], method='nearest')[0]
 
             else:
                 adj_timedate = sample_first_day
 
-            # first_row = self.data.index.get_loc(adj_timedate, method='nearest')
+            # first_row = self.data.index.get_indexer([adj_timedate], method='nearest')[0]
 
             # Easy part:
             last_row = first_row + sample_num_records  # + 1

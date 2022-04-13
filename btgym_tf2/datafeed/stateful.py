@@ -28,7 +28,7 @@ class BTgymSequentialDataDomain(BTgymRandomDataDomain):
     """
     Top-level sequential data iterator.
     Implements conception of sliding [or expanding] train/test time-window.
-    Due to sequential nature doesnt support firm source/target domain separation.
+    Due to sequential nature doesn't support firm source/target domain separation.
 
     Note:
 
@@ -186,7 +186,7 @@ class BTgymSequentialDataDomain(BTgymRandomDataDomain):
 
         if self.start_00:
             first_day = self.data[first_row:first_row + 1].index[0]
-            first_row = self.data.index.get_loc(first_day.date(), method='nearest')
+            first_row = self.data.index.get_indexer([first_day.date()], method='nearest')[0]
             self.log.debug('Trial train start time adjusted to <00:00>')
 
         last_row = first_row + self.sample_num_records
@@ -208,7 +208,7 @@ class BTgymSequentialDataDomain(BTgymRandomDataDomain):
         Args:
             data_filename:  Str or list of str, file_names containing CSV historic data;
             global_step:    position in [0, total_steps] interval to start sampling from;
-            total_steps:    max gym environmnet steps allowed for full sweep over `Trials`;
+            total_steps:    max gym environment steps allowed for full sweep over `Trials`;
             skip_frame:     BTGym specific, such as: `total_btgym_dataset_steps = total_steps * skip_frame`;
         """
         self._reset(data_filename=data_filename, **kwargs)

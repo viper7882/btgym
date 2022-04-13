@@ -54,10 +54,10 @@ class BTgymEpisode(BTgymBaseData):
         )
 
     def reset(self, **kwargs):
-        raise RuntimeError('Episode object doesnt support .reset() method.')
+        raise RuntimeError("Episode object doesn't support .reset() method.")
 
     def sample(self, **kwargs):
-        raise RuntimeError('Episode object doesnt support .sample() method.')
+        raise RuntimeError("Episode object doesn't support .sample() method.")
 
 
 class BTgymDataTrial(BTgymBaseData):

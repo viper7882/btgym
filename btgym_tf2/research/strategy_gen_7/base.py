@@ -3,7 +3,7 @@ import backtrader as bt
 import backtrader.indicators as btind
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 
 import numpy as np
 from scipy import stats
@@ -122,7 +122,7 @@ class BaseStrategy7(bt.Strategy):
         gamma=0.99,             # fi_gamma, should match MDP gamma decay
         reward_scale=1.0,       # reward multiplicator
         norm_alpha=0.001,       # renormalisation tracking decay in []0, 1]
-        drawdown_call=10,       # finish episode when hitting drawdown treshghold, in percent to initial cash.
+        drawdown_call=10,       # finish episode when hitting drawdown threshold, in percent to initial cash.
         dataset_stat=None,      # Summary descriptive statistics for entire dataset and
         episode_stat=None,      # current episode. Got updated by server.
         time_dim=time_dim,      # time embedding period
@@ -161,7 +161,7 @@ class BaseStrategy7(bt.Strategy):
                     leverage:           float, broker leverage
                     slippage:           float, broker execution slippage
                     order_size:         dict of fixed order stakes (floats); keys should match assets names.
-                    drawdown_call:      finish episode when hitting this drawdown treshghold , in percent.
+                    drawdown_call:      finish episode when hitting this drawdown threshold , in percent.
                     portfolio_actions:  possible agent actions.
                     skip_frame:         number of environment steps to skip before returning next response,
                                         e.g. if set to 10 -- agent will interact with environment every 10th step;
@@ -723,7 +723,7 @@ class BaseStrategy7(bt.Strategy):
         defining necessary calculations and return properly shaped tensors for every space mode.
 
         Note:
-            - 'data' referes to bt.startegy datafeeds and should be treated as such.
+            - 'data' referes to bt.strategy datafeeds and should be treated as such.
                 Datafeed Lines that are not default to BTgymStrategy should be explicitly defined by
                  __init__() or define_datalines().
         """

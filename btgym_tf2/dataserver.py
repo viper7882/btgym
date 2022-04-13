@@ -133,7 +133,10 @@ class BTgymDataFeedServer(multiprocessing.Process):
         # Main loop:
         while True:
             # Stick here until receive any request:
-            service_input = socket.recv_pyobj()
+            try:
+                service_input = socket.recv_pyobj()
+            except KeyboardInterrupt:
+                print("WARNING: Ctrl+C interrupt received, proceeding...")
             self.log.debug('Received <{}>'.format(service_input))
 
             if 'ctrl' in service_input:
@@ -143,7 +146,10 @@ class BTgymDataFeedServer(multiprocessing.Process):
                     # send last run statistic, release comm channel and exit:
                     message = {'ctrl': 'Exiting.'}
                     self.log.info(str(message))
-                    socket.send_pyobj(message)
+                    try:
+                        socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
                     socket.close()
                     context.destroy()
                     return None
@@ -167,7 +173,10 @@ class BTgymDataFeedServer(multiprocessing.Process):
                     )
                     message = {'ctrl': 'Reset with kwargs: {}'.format(kwargs)}
                     self.log.debug('Data_is_ready: {}'.format(self.dataset.is_ready))
-                    socket.send_pyobj(message)
+                    try:
+                        socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
                     self.local_step = 0
 
                 # Send dataset sample:
@@ -176,19 +185,25 @@ class BTgymDataFeedServer(multiprocessing.Process):
                         sample = self.get_data(sample_config=service_input['kwargs'])
                         message = 'Sending sample_#{}.'.format(self.local_step)
                         self.log.debug(message)
-                        socket.send_pyobj(
-                            {
-                                'sample': sample,
-                                'stat': self.dataset_stat,
-                                'origin': 'data_server',
-                                'timestamp': self.dataset.global_timestamp,
-                            }
-                        )
+                        try:
+                            socket.send_pyobj(
+                                {
+                                    'sample': sample,
+                                    'stat': self.dataset_stat,
+                                    'origin': 'data_server',
+                                    'timestamp': self.dataset.global_timestamp,
+                                }
+                            )
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                     else:
                         message = {'ctrl': 'Dataset not ready, waiting for control key <_reset_data>'}
                         self.log.debug('Sent: ' + str(message))
-                        socket.send_pyobj(message)  # pairs any other input
+                        try:
+                            socket.send_pyobj(message)  # pairs any other input
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 # Send dataset statisitc:
                 elif service_input['ctrl'] == '_get_info':
@@ -202,7 +217,10 @@ class BTgymDataFeedServer(multiprocessing.Process):
                         dataset_is_ready=self.dataset.is_ready,
                         data_names=self.dataset.data_names
                     )
-                    socket.send_pyobj(info_dict)
+                    try:
+                        socket.send_pyobj(info_dict)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 # Set global time:
                 elif service_input['ctrl'] == '_set_broadcast_message':
@@ -224,13 +242,19 @@ class BTgymDataFeedServer(multiprocessing.Process):
                                 datetime.datetime.fromtimestamp(self.dataset.global_timestamp),
                                 self.dataset.global_timestamp
                             )
-                    socket.send_pyobj(message)
+                    try:
+                        socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
                     self.log.debug(message)
 
                 elif service_input['ctrl'] == '_get_global_time':
                     # Tell time:
                     message = {'timestamp': self.dataset.global_timestamp}
-                    socket.send_pyobj(message)
+                    try:
+                        socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 elif service_input['ctrl'] == '_get_broadcast_message':
                     # Tell:
@@ -238,7 +262,10 @@ class BTgymDataFeedServer(multiprocessing.Process):
                         'timestamp': self.dataset.global_timestamp,
                         'broadcast_message': self.broadcast_message,
                     }
-                    socket.send_pyobj(message)
+                    try:
+                        socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 else:  # ignore any other input
                     # NOTE: response dictionary must include 'ctrl' key
@@ -248,7 +275,10 @@ class BTgymDataFeedServer(multiprocessing.Process):
                             '<_get_info>, <_stop>, <_get_global_time>, <_get_broadcast_message>'
                     }
                     self.log.debug('Sent: ' + str(message))
-                    socket.send_pyobj(message)  # pairs any other input
+                    try:
+                        socket.send_pyobj(message)  # pairs any other input
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
             else:
                 message = {'ctrl': 'No <ctrl> key received, got:\n{}'.format(service_input)}

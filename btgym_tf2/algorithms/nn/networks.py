@@ -6,8 +6,10 @@
 
 import numpy as np
 import tensorflow as tf
-import tensorflow.contrib.rnn as rnn
-from tensorflow.contrib.layers import layer_norm as norm_layer
+# import tensorflow.contrib.rnn as rnn
+# from tensorflow.contrib.layers import layer_norm as norm_layer
+from tensorflow.keras.layers import LayerNormalization as norm_layer
+
 from tensorflow.python.util.nest import flatten as flatten_nested
 
 from btgym_tf2.algorithms.nn.layers import normalized_columns_initializer, categorical_sample
@@ -105,7 +107,7 @@ def conv_1d_network(x,
 def lstm_network(
         x,
         lstm_sequence_length,
-        lstm_class=rnn.BasicLSTMCell,
+        lstm_class=tf.compat.v1.nn.rnn_cell.BasicLSTMCell,
         lstm_layers=(256,),
         static=False,
         keep_prob=None,
@@ -141,7 +143,7 @@ def lstm_network(
 
             lstm.append(layer)
 
-        lstm = rnn.MultiRNNCell(lstm, state_is_tuple=True)
+        lstm = tf.compat.v1.nn.rnn_cell.MultiRNNCell(lstm, state_is_tuple=True)
         # Get time_dimension as [1]-shaped tensor:
         step_size = tf.expand_dims(tf.shape(input=x)[1], [0])
 

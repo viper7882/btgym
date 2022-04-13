@@ -342,7 +342,7 @@ class AMLDG_1(GuidedAAC):
             while not done:
                 # self.log.warning('Roll #{}'.format(roll_num))
 
-                wirte_model_summary = \
+                write_model_summary = \
                     self.local_steps % self.model_summary_freq == 0
 
                 feed_dict = self.process_data(sess, train_data, is_train=is_train, pi=self.local_network)
@@ -372,7 +372,7 @@ class AMLDG_1(GuidedAAC):
                         self.process_data(sess, test_data, is_train=True, pi=self.local_network_prime)
                     )
 
-                    if wirte_model_summary:
+                    if write_model_summary:
                         meta_fetches = [self.meta_train_op, self.model_summary_op, self.inc_step]
                     else:
                         meta_fetches = [self.meta_train_op, self.inc_step]
@@ -386,7 +386,7 @@ class AMLDG_1(GuidedAAC):
 
                     # self.log.warning('Meta-opt. rollout ok.')
 
-                if wirte_model_summary:
+                if write_model_summary:
                     meta_model_summary = meta_fetched[-2]
                     model_summary = fetched[-1]
 

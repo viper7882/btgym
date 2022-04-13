@@ -1,7 +1,7 @@
 import numpy as np
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 import backtrader.indicators as btind
 from backtrader import Indicator
 

@@ -103,7 +103,10 @@ class _BTgymAnalyzer(bt.Analyzer):
         # Send response as <o, r, d, i> tuple (Gym convention),
         # opt to send entire info_list or just latest part:
         info = [self.info_list[-1]]
-        self.socket.send_pyobj((state, reward, is_done, info))
+        try:
+            self.socket.send_pyobj((state, reward, is_done, info))
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
         # Increment global time by sending timestamp to data_server, if authorized;
         if self.can_broadcast:
@@ -111,14 +114,18 @@ class _BTgymAnalyzer(bt.Analyzer):
             broadcast_info = self.get_broadcast_info()
             self.log.debug('broadcasting timestamp: {}'.format(global_timestamp))
 
-            self.data_socket.send_pyobj(
-                {
-                    'ctrl': '_set_broadcast_message',
-                    'timestamp': global_timestamp,
-                    'broadcast_message': broadcast_info,
-                }
-            )
-            broadcast_set_response = self.data_socket.recv_pyobj()
+            # SIGINT will normally raise a KeyboardInterrupt, just like any other Python call
+            try:
+                self.data_socket.send_pyobj(
+                    {
+                        'ctrl': '_set_broadcast_message',
+                        'timestamp': global_timestamp,
+                        'broadcast_message': broadcast_info,
+                    }
+                )
+                broadcast_set_response = self.data_socket.recv_pyobj()
+            except KeyboardInterrupt:
+                print("WARNING: Ctrl+C interrupt received, proceeding...")
             self.log.debug('DATA_COMM/broadcast received: {}'.format(broadcast_set_response))
 
         # Back up step information for rendering.
@@ -160,7 +167,10 @@ class _BTgymAnalyzer(bt.Analyzer):
             #print('Analyzer_env_iteration:', self.strategy.env_iteration)
 
             # Halt and wait to receive message from outer world:
-            self.message = self.socket.recv_pyobj()
+            try:
+                self.message = self.socket.recv_pyobj()
+            except KeyboardInterrupt:
+                print("WARNING: Ctrl+C interrupt received, proceeding...")
             msg = 'COMM received: {}'.format(self.message)
             self.log.debug(msg)
 
@@ -168,24 +178,36 @@ class _BTgymAnalyzer(bt.Analyzer):
             while 'ctrl' in self.message:
                 # Rendering requested:
                 if self.message['ctrl'] == '_render':
-                    self.socket.send_pyobj(
-                        self.render.render(
-                            self.message['mode'],
-                            step_to_render=self.step_to_render,
+                    try:
+                        self.socket.send_pyobj(
+                            self.render.render(
+                                self.message['mode'],
+                                step_to_render=self.step_to_render,
+                            )
                         )
-                    )
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
                 # Episode termination requested:
                 elif self.message['ctrl'] == '_done':
                     is_done = True  # redundant
-                    self.socket.send_pyobj('_DONE SIGNAL RECEIVED')
+                    try:
+                        self.socket.send_pyobj('_DONE SIGNAL RECEIVED')
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
                     self.early_stop()
                     return None
 
                 elif self.message['ctrl'] == '_get_data':
-                    self.socket.send_pyobj(self.get_current_trial())
+                    try:
+                        self.socket.send_pyobj(self.get_current_trial())
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 elif self.message['ctrl'] == '_get_info':
-                    self.socket.send_pyobj(self.get_dataset_info())
+                    try:
+                        self.socket.send_pyobj(self.get_dataset_info())
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 # Unknown key:
                 else:
@@ -194,11 +216,17 @@ class _BTgymAnalyzer(bt.Analyzer):
                     self.log.warning(
                         'Analyzer received unexpected key: {}; Sent: {}'.format(self.message, str(message))
                     )
-                    self.socket.send_pyobj(message)
+                    try:
+                        self.socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 # Halt again:
-                self.message = self.socket.recv_pyobj()
-                msg = 'COMM recieved: {}'.format(self.message)
+                try:
+                    self.message = self.socket.recv_pyobj()
+                except KeyboardInterrupt:
+                    print("WARNING: Ctrl+C interrupt received, proceeding...")
+                msg = 'COMM received: {}'.format(self.message)
                 self.log.debug(msg)
 
             # Store agent action an rise respond_pending flag:
@@ -208,7 +236,7 @@ class _BTgymAnalyzer(bt.Analyzer):
                 self.respond_pending = True
 
             else:
-                msg = 'No <action> key recieved:\n' + msg
+                msg = 'No <action> key received:\n' + msg
                 raise AssertionError(msg)
 
         # If done, initiate fallback to Control Mode:
@@ -237,7 +265,7 @@ class BTgymServer(multiprocessing.Process):
     Control mode OUT::
 
         <string message> - reports current server status;
-        <statisic dict> - last run episode statisics.  NotImplemented.
+        <statistic dict> - last run episode statistics.  NotImplemented.
 
         Within-episode signals:
         Episode mode IN:
@@ -272,7 +300,7 @@ class BTgymServer(multiprocessing.Process):
         Args:
             cerebro:                backtrader.cerebro engine class.
             render:                 render class
-            network_address:        environmnet communication, str
+            network_address:        environment communication, str
             data_network_address:   data communication, str
             connect_timeout:        seconds, int
             log_level:              int, logbook.level
@@ -313,6 +341,8 @@ class BTgymServer(multiprocessing.Process):
         )
         try:
             socket.send_pyobj(message)
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
@@ -326,6 +356,8 @@ class BTgymServer(multiprocessing.Process):
         try:
             response['message'] = socket.recv_pyobj()
             response['time'] =  time.time() - start
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
@@ -550,7 +582,10 @@ class BTgymServer(multiprocessing.Process):
         for episode_number in itertools.count(0):
             while True:
                 # Stuck here until '_reset' or '_stop':
-                service_input = self.socket.recv_pyobj()
+                try:
+                    service_input = self.socket.recv_pyobj()
+                except KeyboardInterrupt:
+                    print("WARNING: Ctrl+C interrupt received, proceeding...")
                 msg = 'Control mode: received <{}>'.format(service_input)
                 self.log.debug(msg)
 
@@ -561,7 +596,10 @@ class BTgymServer(multiprocessing.Process):
                         # send last run statistic, release comm channel and exit:
                         message = 'Exiting.'
                         self.log.info(message)
-                        self.socket.send_pyobj(message)
+                        try:
+                            self.socket.send_pyobj(message)
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
                         self.socket.close()
                         self.context.destroy()
                         return None
@@ -570,43 +608,64 @@ class BTgymServer(multiprocessing.Process):
                     elif service_input['ctrl'] == '_reset':
                         message = 'Preparing new episode with kwargs: {}'.format(service_input['kwargs'])
                         self.log.debug(message)
-                        self.socket.send_pyobj(message)  # pairs '_reset'
+                        try:
+                            self.socket.send_pyobj(message)  # pairs '_reset'
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
                         break
 
                     # Retrieve statistic:
                     elif service_input['ctrl'] == '_getstat':
-                        self.socket.send_pyobj(episode_result)
-                        self.log.debug('Episode statistic sent.')
+                        try:
+                            self.socket.send_pyobj(episode_result)
+                            self.log.debug('Episode statistic sent.')
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                     # Send episode rendering:
                     elif service_input['ctrl'] == '_render' and 'mode' in service_input.keys():
-                        # Just send what we got:
-                        self.socket.send_pyobj(self.render.render(service_input['mode']))
-                        self.log.debug('Episode rendering for [{}] sent.'.format(service_input['mode']))
+                        try:
+                            # Just send what we got:
+                            self.socket.send_pyobj(self.render.render(service_input['mode']))
+                            self.log.debug('Episode rendering for [{}] sent.'.format(service_input['mode']))
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                     # Serve data-dependent environment with trial instance:
                     elif service_input['ctrl'] == '_get_data':
                         message = 'Sending trial data to slave'
                         self.log.debug(message)
-                        self.socket.send_pyobj(self.get_trial_message())
+                        try:
+                            self.socket.send_pyobj(self.get_trial_message())
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                     # Serve data-dependent environment with dataset statisitc:
                     elif service_input['ctrl'] == '_get_info':
                         message = 'Sending dataset statistic to slave'
                         self.log.debug(message)
-                        self.socket.send_pyobj(self.get_dataset_stat())
+                        try:
+                            self.socket.send_pyobj(self.get_dataset_stat())
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                     else:  # ignore any other input
                         # NOTE: response string must include 'ctrl' key
                         # for env.reset(), env.get_stat(), env.close() correct operation.
                         message = {'ctrl': 'send control keys: <_reset>, <_getstat>, <_render>, <_stop>.'}
                         self.log.debug('Control mode: sent: ' + str(message))
-                        self.socket.send_pyobj(message)  # pairs any other input
+                        try:
+                            self.socket.send_pyobj(message)  # pairs any other input
+                        except KeyboardInterrupt:
+                            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
                 else:
                     message = 'No <ctrl> key received:{}\nHint: forgot to call reset()?'.format(msg)
                     self.log.debug(message)
-                    self.socket.send_pyobj(message)
+                    try:
+                        self.socket.send_pyobj(message)
+                    except KeyboardInterrupt:
+                        print("WARNING: Ctrl+C interrupt received, proceeding...")
 
             # Got '_reset' signal -> prepare Cerebro subclass and run episode:
             start_time = time.time()
@@ -714,9 +773,10 @@ class BTgymServer(multiprocessing.Process):
 
             self.log.debug('Episode run finished.')
 
+            # TODO: Disabled cerebro rendering for now due to EOFError: Ran out of input error
             # Update episode rendering:
-            _ = self.render.render('just_render', cerebro=cerebro)
-            _ = None
+            # _ = self.render.render('just_render', cerebro=cerebro)
+            # _ = None
 
             # Recover that bloody analytics:
             analyzers_list = episode.analyzers.getnames()

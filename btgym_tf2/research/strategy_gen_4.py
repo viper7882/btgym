@@ -8,7 +8,7 @@ from btgym_tf2.strategy.base import BTgymBaseStrategy
 from btgym_tf2.strategy.utils import tanh, abs_norm_ratio, exp_scale, discounted_average, log_transform
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 
 """
 Research grade code. Can be unstable, buggy, poor performing and generally is subject to change.
@@ -26,7 +26,7 @@ class DevStrat_4_6(BTgymBaseStrategy):
 
         internal state data feature search:
             time_embedded concatenated vector of broker and portfolio statistics
-            time_embedded vector of last actions recieved (one-hot)
+            time_embedded vector of last actions received (one-hot)
             time_embedded vector of rewards
 
         reward shaping search:

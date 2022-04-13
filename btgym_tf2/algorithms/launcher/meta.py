@@ -23,12 +23,14 @@ class MetaLauncher(Launcher):
             render_slave_env:   bool, if True - rendering enabled for slave environment; master otherwise.
             **kwargs:           same as base class args: btgym_tf2.algorithms.launcher.Launcher
         """
+        log_dir = './tmp/meta_aac_log'
+        os.makedirs(log_dir, exist_ok=True)
         meta_cluster_config = dict(
             host='127.0.0.1',
             port=12222,
             num_workers=1,
             num_ps=1,
-            log_dir='./tmp/meta_aac_log',
+            log_dir=log_dir,
             num_envs=2,  # just a declaration
         )
         meta_cluster_config = self._update_config_dict(meta_cluster_config, cluster_config)

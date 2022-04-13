@@ -23,7 +23,7 @@ import numpy as np
 
 import backtrader as bt
 
-from btgym import BTgymRendering, DictSpace, ActionDictSpace
+from btgym_tf2 import BTgymRendering, DictSpace, ActionDictSpace
 
 from btgym_tf2.rendering import BTgymNullRendering
 
@@ -37,7 +37,7 @@ class MultiDiscreteEnv(BTgymEnv):
 
     Multi-asset setup explanation:
 
-        1. This environment expects Dataset to be instance of `btgym_tf2.datafeed.multi.BTgymMultiData`, which sets
+        1. This environment expects Dataset be an instance of `btgym_tf2.datafeed.multi.BTgymMultiData`, which sets
         number,  specifications and sampling synchronisation for historic data for all assets
         one want to trade jointly.
 
@@ -57,7 +57,7 @@ class MultiDiscreteEnv(BTgymEnv):
             Example::
 
                 if datalines added via BTgymMultiData are: ['eurchf', 'eurgbp', 'eurgpy', 'eurusd'],
-                and base asset actions are ['hold', 'buy', 'sell', 'close'], than:
+                and base asset actions are ['hold', 'buy', 'sell', 'close'], then:
 
                 env.action.space will be:
                     DictSpace(
@@ -106,7 +106,7 @@ class MultiDiscreteEnv(BTgymEnv):
         As a rule: strategy operates with dictionary of string names of actions, environment sees action as dictionary
         of integer numbers while policy estimator operates with either binary or one-hot encoding.
 
-        5. Observation space: is nested DictSpace, where 'external' part part of space should hold specifications for
+        5. Observation space: is nested DictSpace, where 'external' part of space should hold specifications for
         every asset added.
 
             Example::

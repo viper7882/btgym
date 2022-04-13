@@ -2,14 +2,10 @@ import numpy as np
 import scipy.signal as signal
 from scipy.stats import zscore
 
-import backtrader as bt
-import backtrader.indicators as btind
-
-from btgym_tf2.strategy.base import BTgymBaseStrategy
-from btgym_tf2.strategy.utils import tanh, abs_norm_ratio, exp_scale, discounted_average, log_transform
+from btgym_tf2.strategy.utils import tanh
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 
 from btgym_tf2.research.strategy_gen_4 import DevStrat_4_10
 

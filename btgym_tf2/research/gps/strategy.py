@@ -5,7 +5,7 @@ from btgym_tf2.research.strategy_gen_4 import DevStrat_4_12
 from btgym_tf2.research.gps.oracle import Oracle, Oracle2
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 
 
 class GuidedStrategy_0_0(DevStrat_4_12):

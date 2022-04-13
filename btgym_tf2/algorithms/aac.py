@@ -1373,13 +1373,13 @@ class BaseAAC(object):
                 feed_dict = self.process_data(sess, data, is_train, self.local_network, self.local_network_prime)
 
                 # Say `No` to redundant summaries:
-                wirte_model_summary =\
+                write_model_summary =\
                     self.local_steps % self.model_summary_freq == 0
 
                 #fetches = [self.train_op, self.local_network.debug]  # include policy debug shapes
                 fetches = [self.train_op]
 
-                if wirte_model_summary:
+                if write_model_summary:
                     fetches_last = fetches + [self.model_summary_op, self.inc_step]
                 else:
                     fetches_last = fetches + [self.inc_step]
@@ -1391,7 +1391,7 @@ class BaseAAC(object):
 
                 fetched = sess.run(fetches_last, feed_dict=feed_dict)
 
-                if wirte_model_summary:
+                if write_model_summary:
                     model_summary = fetched[-2]
 
                 else:

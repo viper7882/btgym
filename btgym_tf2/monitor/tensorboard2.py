@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import os
 from subprocess import PIPE
 import psutil
 import glob
@@ -130,6 +131,7 @@ class Tensorboard():
         """____"""
         self.port = port
         self.logdir = logdir
+        os.makedirs(self.logdir, exist_ok=True)
         self.process = None
         self.pid = ''
 

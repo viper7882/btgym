@@ -1,4 +1,5 @@
-from tensorflow.contrib.layers import flatten as batch_flatten
+# from tensorflow.contrib.layers import flatten as batch_flatten
+from tensorflow.keras.layers import flatten as batch_flatten
 
 from btgym_tf2.algorithms.policy.base import BaseAacPolicy
 from btgym_tf2.algorithms.policy.stacked_lstm import AacStackedRL2Policy

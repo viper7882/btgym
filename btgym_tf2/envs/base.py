@@ -31,8 +31,8 @@ from collections import OrderedDict
 
 import backtrader as bt
 
-from btgym import BTgymServer, BTgymBaseStrategy, BTgymDataset, BTgymRendering, BTgymDataFeedServer
-from btgym import DictSpace, ActionDictSpace
+from btgym_tf2 import BTgymServer, BTgymBaseStrategy, BTgymDataset, BTgymRendering, BTgymDataFeedServer
+from btgym_tf2 import DictSpace, ActionDictSpace
 from btgym_tf2.datafeed.multi import BTgymMultiData
 
 from btgym_tf2.rendering import BTgymNullRendering
@@ -108,10 +108,10 @@ class BTgymEnv(gym.Env):
             filename=None (str, list):                      csv data file.
             **datafeed_args (any):                          any datafeed-related args, passed through to
                                                             default btgym_tf2.datafeed class.
-            dataset=None (btgym_tf2.datafeed):                  BTgymDataDomain instance,
+            dataset=None (btgym_tf2.datafeed):              BTgymDataDomain instance,
                                                             overrides `filename` or any other datafeed-related args.
-            strategy=None (btgym_tf2.startegy):                 strategy to be used by `engine`, any subclass of
-                                                            btgym_tf2.strategy.base.BTgymBaseStrateg
+            strategy=None (btgym_tf2.strategy):             strategy to be used by `engine`, any subclass of
+                                                            btgym_tf2.strategy.base.BTgymBaseStrategy
             engine=None (bt.Cerebro):                       environment simulation engine, any bt.Cerebro subclass,
                                                             overrides `strategy` arg.
             network_address=`tcp://127.0.0.1:` (str):       BTGym_server address.
@@ -473,7 +473,8 @@ class BTgymEnv(gym.Env):
         )
         try:
             socket.send_pyobj(message)
-
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
                 response['status'] = 'send_failed_due_to_connect_timeout'
@@ -486,6 +487,8 @@ class BTgymEnv(gym.Env):
         try:
             response['message'] = socket.recv_pyobj()
             response['time'] = time.time() - start
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
         except zmq.ZMQError as e:
             if e.errno == zmq.EAGAIN:
@@ -509,8 +512,9 @@ class BTgymEnv(gym.Env):
             self.socket = None
 
         # 2. Kill any process using server port:
-        cmd = "kill $( lsof -i:{} -t ) > /dev/null 2>&1".format(self.port)
-        os.system(cmd)
+        # cmd = "kill $( lsof -i:{} -t ) > /dev/null 2>&1".format(self.port)
+        # cmd = "taskkill /im $( lsof -i:{} -t ) > /dev/null 2>&1".format(self.port)
+        # os.system(cmd)
 
         # Set up client channel:
         self.context = zmq.Context()
@@ -559,10 +563,12 @@ class BTgymEnv(gym.Env):
         if self.server:
 
             if self._force_control_mode():
-                # In case server is running and client side is ok:
-                self.socket.send_pyobj({'ctrl': '_stop'})
-                self.server_response = self.socket.recv_pyobj()
-
+                try:
+                    # In case server is running and client side is ok:
+                    self.socket.send_pyobj({'ctrl': '_stop'})
+                    self.server_response = self.socket.recv_pyobj()
+                except KeyboardInterrupt:
+                    print("WARNING: Ctrl+C interrupt received, proceeding...")
             else:
                 self.server.terminate()
                 self.server.join()
@@ -595,10 +601,13 @@ class BTgymEnv(gym.Env):
             attempt = 0
 
             while 'ctrl' not in self.server_response:
-                self.socket.send_pyobj({'ctrl': '_done'})
-                self.server_response = self.socket.recv_pyobj()
-                attempt += 1
-                self.log.debug('FORCE CONTROL MODE attempt: {}.\nResponse: {}'.format(attempt, self.server_response))
+                try:
+                    self.socket.send_pyobj({'ctrl': '_done'})
+                    self.server_response = self.socket.recv_pyobj()
+                    attempt += 1
+                    self.log.debug('FORCE CONTROL MODE attempt: {}.\nResponse: {}'.format(attempt, self.server_response))
+                except KeyboardInterrupt:
+                    print("WARNING: Ctrl+C interrupt received, proceeding...")
 
             return True
 
@@ -643,7 +652,7 @@ class BTgymEnv(gym.Env):
                 response += self._print_space(i, '   ')
 
         elif type(space) == np.ndarray:
-            response += '\n{}array of shape: {}, low: {}, high: {}'.format(_tab, space._shape, space.min(), space.max())
+            response += '\n{}array of shape: {}, low: {}, high: {}'.format(_tab, space.shape, space.min(), space.max())
 
         else:
             response += '\n{}{}, '.format(_tab, space)
@@ -802,16 +811,14 @@ class BTgymEnv(gym.Env):
 
             self.log.debug('got action as scalar: {}, converted to: {}'.format(a, action))
 
-        if not self._closed\
-            and (self.socket is not None)\
-            and not self.socket.closed:
+        if not self._closed and (self.socket is not None) and not self.socket.closed:
             pass
 
         else:
             msg = (
                 '\nAt least one of these is true:\n' +
                 'Environment closed: {}\n' +
-                'Network error [socket doesnt exists or closed]: {}\n' +
+                'Network error [socket doesn\'t exists or closed]: {}\n' +
                 'Hint: forgot to call reset() or out of action space?'
             ).format(
                 self._closed,
@@ -854,8 +861,13 @@ class BTgymEnv(gym.Env):
             when invoked, forces running episode to terminate.
         """
         if self._force_control_mode():
-            self.socket.send_pyobj({'ctrl': '_getstat'})
-            return self.socket.recv_pyobj()
+            try:
+                self.socket.send_pyobj({'ctrl': '_getstat'})
+                response = self.socket.recv_pyobj()
+            except KeyboardInterrupt:
+                print("WARNING: Ctrl+C interrupt received, proceeding...")
+
+            return response
 
         else:
             return self.server_response
@@ -885,7 +897,7 @@ class BTgymEnv(gym.Env):
                 '\nCan''t get renderings.'
                 '\nAt least one of these is true:\n' +
                 'Environment closed: {}\n' +
-                'Network error [socket doesnt exists or closed]: {}\n' +
+                'Network error [socket doesn\'t exists or closed]: {}\n' +
                 'Hint: forgot to call reset()?'
             ).format(
                 self._closed,
@@ -895,9 +907,11 @@ class BTgymEnv(gym.Env):
             return None
         if mode not in self.render_modes:
             raise ValueError('Unexpected render mode {}'.format(mode))
-        self.socket.send_pyobj({'ctrl': '_render', 'mode': mode})
-
-        rgb_array_dict = self.socket.recv_pyobj()
+        try:
+            self.socket.send_pyobj({'ctrl': '_render', 'mode': mode})
+            rgb_array_dict = self.socket.recv_pyobj()
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
         self.rendered_rgb.update(rgb_array_dict)
 
@@ -936,8 +950,8 @@ class BTgymEnv(gym.Env):
         # Only data_master launches/stops data_server process:
         if self.data_master:
             # 2. Kill any process using server port:
-            cmd = "kill $( lsof -i:{} -t ) > /dev/null 2>&1".format(self.data_port)
-            os.system(cmd)
+            # cmd = "kill $( lsof -i:{} -t ) > /dev/null 2>&1".format(self.data_port)
+            # os.system(cmd)
 
             # Configure and start server:
             self.data_server = BTgymDataFeedServer(
@@ -985,9 +999,12 @@ class BTgymEnv(gym.Env):
         """
         if self.data_master:
             if self.data_server is not None and self.data_server.is_alive():
-                # In case server is running and is ok:
-                self.data_socket.send_pyobj({'ctrl': '_stop'})
-                self.data_server_response = self.data_socket.recv_pyobj()
+                try:
+                    # In case server is running and is ok:
+                    self.data_socket.send_pyobj({'ctrl': '_stop'})
+                    self.data_server_response = self.data_socket.recv_pyobj()
+                except KeyboardInterrupt:
+                    print("WARNING: Ctrl+C interrupt received, proceeding...")
 
             else:
                 self.data_server.terminate()
@@ -1012,8 +1029,11 @@ class BTgymEnv(gym.Env):
         """
         Retrieves dataset configuration and descriptive statistic.
         """
-        self.data_socket.send_pyobj({'ctrl': '_get_info'})
-        self.data_server_response = self.data_socket.recv_pyobj()
+        try:
+            self.data_socket.send_pyobj({'ctrl': '_get_info'})
+            self.data_server_response = self.data_socket.recv_pyobj()
+        except KeyboardInterrupt:
+            print("WARNING: Ctrl+C interrupt received, proceeding...")
 
         return self.data_server_response['dataset_stat'],\
             self.data_server_response['dataset_columns'],\

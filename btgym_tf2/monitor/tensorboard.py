@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import os
 from subprocess import Popen, PIPE
 import psutil
 import glob
@@ -58,6 +59,7 @@ class BTgymMonitor():
         self.tf = tf
         self.tensorboard = Tensorboard(logdir=logdir, **kwargs)
         self.logdir = logdir+subdir
+        os.makedirs(self.log_dir, exist_ok=True)
         self.purge_previous = purge_previous
         self.feed_holder = dict()
         self.summary = None
@@ -131,6 +133,7 @@ class Tensorboard():
         """____"""
         self.port = port
         self.logdir = logdir
+        os.makedirs(self.logdir, exist_ok=True)
         self.process = None
         self.pid = ''
 

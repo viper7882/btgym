@@ -404,7 +404,7 @@ class AMLDG_1s(GuidedAAC):
             while not done:
                 # self.log.warning('Roll #{}'.format(roll_num))
 
-                wirte_model_summary = \
+                write_model_summary = \
                     self.local_steps % self.model_summary_freq == 0
 
                 self.episode_memory.add_batch(
@@ -446,14 +446,14 @@ class AMLDG_1s(GuidedAAC):
                 else:
                     train_op = [self.local_train_op]
 
-                if wirte_model_summary:
+                if write_model_summary:
                     meta_fetches = train_op + [self.model_summary_op, self.inc_step]
                 else:
                     meta_fetches = train_op + [self.inc_step]
 
                 meta_fetched = sess.run(meta_fetches, feed_dict=feed_dict)
 
-                if wirte_model_summary and is_train:
+                if write_model_summary and is_train:
                     meta_model_summary = meta_fetched[-2]
 
                 else:

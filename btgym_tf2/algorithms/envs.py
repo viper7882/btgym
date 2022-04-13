@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import gym
 from gym import spaces
-from btgym import DictSpace, ActionDictSpace
+from btgym_tf2 import DictSpace, ActionDictSpace
 
 
 def _process_frame42(frame):

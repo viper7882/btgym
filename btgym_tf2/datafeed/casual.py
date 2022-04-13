@@ -75,10 +75,10 @@ class BTgymCasualTrial(BTgymDataTrial):
             data row corresponded to current global_time
         """
         if self.is_ready:
-            return self.data.index.get_loc(
-                datetime.datetime.fromtimestamp(self.global_timestamp),
+            return self.data.index.get_indexer(
+                [datetime.datetime.fromtimestamp(self.global_timestamp)],
                 method='backfill'
-            )
+            )[0]
 
         else:
             return 0
@@ -359,10 +359,10 @@ class BTgymCasualDataDomain(BTgymRandomDataDomain):
             data row corresponded to current global_time
         """
         if self.is_ready:
-            return self.data.index.get_loc(
-                datetime.datetime.fromtimestamp(self.global_timestamp),
+            return self.data.index.get_indexer(
+                [datetime.datetime.fromtimestamp(self.global_timestamp)],
                 method='backfill'
-            )
+            )[0]
 
         else:
             return 0
@@ -450,7 +450,7 @@ class BTgymCasualDataDomain(BTgymRandomDataDomain):
         self.final_timestamp = self.data.index[-self.test_num_records].timestamp()
 
         if self.frozen_time_split is not None:
-            frozen_index = self.data.index.get_loc(self.frozen_time_split, method='ffill')
+            frozen_index = self.data.index.get_indexer([self.frozen_time_split], method='ffill')[0]
             self.frozen_split_timestamp = self.data.index[frozen_index].timestamp()
             self.set_global_timestamp(self.frozen_split_timestamp)
 

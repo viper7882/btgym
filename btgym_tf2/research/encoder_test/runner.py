@@ -165,7 +165,7 @@ class RegressionRunner(BaseSynchroRunner):
     def get_ep_render(self, is_test=False):
         """
         Visualises episode environment and policy statistics.
-        Relies on environmnet renderer class methods,
+        Relies on environment renderer class methods,
         so it is only valid when environment rendering is enabled (typically it is true for master runner).
 
         Returns:

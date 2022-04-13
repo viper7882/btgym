@@ -1,4 +1,4 @@
-from tensorflow.contrib.layers import flatten as batch_flatten
+from tensorflow.keras.layers import Flatten as batch_flatten
 
 from btgym_tf2.algorithms.policy.base import BaseAacPolicy
 from btgym_tf2.algorithms.nn.networks import *
@@ -27,7 +27,7 @@ class StackedLstmPolicy(BaseAacPolicy):
                  ac_space,
                  rp_sequence_size,
                  state_encoder_class_ref=conv_2d_network,
-                 lstm_class_ref=tf.contrib.rnn.LayerNormBasicLSTMCell,
+                 lstm_class_ref=tf.compat.v1.nn.rnn_cell.LSTMCell,
                  lstm_layers=(256, 256),
                  linear_layer_ref=noisy_linear,
                  share_encoder_params=False,

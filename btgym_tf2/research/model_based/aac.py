@@ -432,11 +432,11 @@ class AMLDG:
 
             # self.log.warning('Actor data ok.')
 
-            wirte_model_summary = \
+            write_model_summary = \
                 self.local_steps % self.model_summary_freq == 0
 
             # Get gradients from actor:
-            if wirte_model_summary:
+            if write_model_summary:
                 actor_fetches = [self.actor_aac.grads, self.inc_step, self.actor_aac.model_summary_op]
 
             else:
@@ -473,7 +473,7 @@ class AMLDG:
             # self.log.warning('Critic data ok.')
 
             # Get gradients from critic:
-            if wirte_model_summary:
+            if write_model_summary:
                 critic_fetches = [self.critic_aac.grads, self.critic_aac.model_summary_op]
 
             else:
@@ -494,7 +494,7 @@ class AMLDG:
 
             # self.log.warning('Final gradients ok.')
 
-            if wirte_model_summary:
+            if write_model_summary:
                 critic_model_summary = critic_fetched[-1]
                 actor_model_summary = actor_fetched[-1]
 

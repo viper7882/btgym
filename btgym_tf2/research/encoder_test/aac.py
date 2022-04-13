@@ -431,7 +431,7 @@ from btgym_tf2.research.encoder_test.runner import RegressionRunner
 #         while not done:
 #             sess.run(self.sync_pi)
 #
-#             wirte_model_summary = \
+#             write_model_summary = \
 #                 self.local_steps % self.model_summary_freq == 0
 #
 #             data = self.get_data(
@@ -441,14 +441,14 @@ from btgym_tf2.research.encoder_test.runner import RegressionRunner
 #             done = np.asarray(data['terminal']).any()
 #             feed_dict = self.process_data(sess, data, is_train=True, pi=self.local_network)
 #
-#             if wirte_model_summary:
+#             if write_model_summary:
 #                 fetches = [self.train_op, self.model_summary_op, self.inc_step]
 #             else:
 #                 fetches = [self.train_op, self.inc_step]
 #
 #             fetched = sess.run(fetches, feed_dict=feed_dict)
 #
-#             if wirte_model_summary:
+#             if write_model_summary:
 #                 model_summary = fetched[-2]
 #
 #             else:
@@ -751,7 +751,7 @@ class RegressionTestAAC(BaseAAC):
         # self.log.warning('train episode started...')
 
         while not done:
-            wirte_model_summary = \
+            write_model_summary = \
                 self.local_steps % self.model_summary_freq == 0
 
             data = self.get_data(
@@ -761,14 +761,14 @@ class RegressionTestAAC(BaseAAC):
             done = np.asarray(data['terminal']).any()
             feed_dict = self.process_data(sess, data, is_train=True, pi=self.local_network)
 
-            if wirte_model_summary:
+            if write_model_summary:
                 fetches = [self.train_op, self.model_summary_op, self.inc_step]
             else:
                 fetches = [self.train_op, self.inc_step]
 
             fetched = sess.run(fetches, feed_dict=feed_dict)
 
-            if wirte_model_summary:
+            if write_model_summary:
                 model_summary = fetched[-2]
 
             else:

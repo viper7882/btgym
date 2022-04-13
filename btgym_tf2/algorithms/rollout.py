@@ -8,7 +8,8 @@
 
 import numpy as np
 
-from tensorflow.contrib.rnn import LSTMStateTuple
+# from tensorflow.contrib.rnn import LSTMStateTuple
+import tensorflow as tf
 from btgym_tf2.algorithms.math_utils import discount
 from btgym_tf2.algorithms.utils import batch_pad
 
@@ -72,12 +73,12 @@ class Rollout(dict):
                     _struct = ['empty' for entry in values]
                 _struct = tuple([self.add(*pair) for pair in zip(values, _struct)])
 
-            elif isinstance(values, LSTMStateTuple):
-                if not isinstance(_struct, LSTMStateTuple):
-                    _struct = LSTMStateTuple(0, 0)
+            elif isinstance(values, tf.compat.v1.nn.rnn_cell.LSTMStateTuple):
+                if not isinstance(_struct, tf.compat.v1.nn.rnn_cell.LSTMStateTuple):
+                    _struct = tf.compat.v1.nn.rnn_cell.LSTMStateTuple(0, 0)
                 c = self.add(values[0], _struct[0])
                 h = self.add(values[1], _struct[1])
-                _struct = LSTMStateTuple(c, h)
+                _struct = tf.compat.v1.nn.rnn_cell.LSTMStateTuple(c, h)
 
             else:
                 if isinstance(_struct, list):

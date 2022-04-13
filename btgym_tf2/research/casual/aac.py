@@ -230,7 +230,7 @@ class CA3C(GuidedAAC):
         while not done:
             sess.run(self.sync_pi)
 
-            wirte_model_summary = \
+            write_model_summary = \
                 self.local_steps % self.model_summary_freq == 0
 
             data = self.get_data(
@@ -240,14 +240,14 @@ class CA3C(GuidedAAC):
             done = np.asarray(data['terminal']).any()
             feed_dict = self.process_data(sess, data, is_train=True, pi=self.local_network)
 
-            if wirte_model_summary:
+            if write_model_summary:
                 fetches = [self.train_op, self.model_summary_op, self.inc_step]
             else:
                 fetches = [self.train_op, self.inc_step]
 
             fetched = sess.run(fetches, feed_dict=feed_dict)
 
-            if wirte_model_summary:
+            if write_model_summary:
                 model_summary = fetched[-2]
 
             else:
@@ -268,7 +268,7 @@ class CA3C(GuidedAAC):
 
 class CA3Ca(CA3C):
     """
-    + Adaptive iteratations.
+    + Adaptive iterations.
     """
 
     def __init__(self, name='CasualAdaA3C', **kwargs):
@@ -454,7 +454,7 @@ class CA3Ca(CA3C):
         while not done:
             sess.run(self.sync_pi)
 
-            wirte_model_summary = \
+            write_model_summary = \
                 self.local_steps % self.model_summary_freq == 0
 
             data = self.get_data(
@@ -465,7 +465,7 @@ class CA3Ca(CA3C):
             done = np.asarray(data['terminal']).any()
             feed_dict = self.process_data(sess, data, is_train=True, pi=self.local_network)
 
-            if wirte_model_summary:
+            if write_model_summary:
                 fetches = [self.local_network.on_vf, self.train_op, self.model_summary_op, self.inc_step]
             else:
                 fetches = [self.local_network.on_vf, self.train_op, self.inc_step]
@@ -474,7 +474,7 @@ class CA3Ca(CA3C):
 
             fetched = sess.run(fetches, feed_dict=feed_dict)
 
-            if wirte_model_summary:
+            if write_model_summary:
                 model_summary = fetched[-2]
 
             else:

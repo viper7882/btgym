@@ -507,7 +507,7 @@ class AMLDG():
             while not done:
                 # self.log.warning('Roll #{}'.format(roll_num))
 
-                wirte_model_summary = \
+                write_model_summary = \
                     self.local_steps % self.model_summary_freq == 0
 
                 # self.log.warning(
@@ -520,7 +520,7 @@ class AMLDG():
                 train_trial_chksum = np.average(train_data['on_policy'][0]['state']['metadata']['trial_num'])
 
                 # Update pi_prime parameters wrt collected train data:
-                if wirte_model_summary:
+                if write_model_summary:
                     fetches = [self.train_op, self.train_aac.model_summary_op]
                 else:
                     fetches = [self.train_op]
@@ -591,7 +591,7 @@ class AMLDG():
                         self.test_aac.process_data(sess, test_data, is_train=True, pi=self.test_aac.local_network)
                     )
 
-                    if wirte_model_summary:
+                    if write_model_summary:
                         meta_fetches = [self.meta_train_op, self.test_aac.model_summary_op, self.inc_step]
                     else:
                         meta_fetches = [self.meta_train_op, self.inc_step]
@@ -605,7 +605,7 @@ class AMLDG():
 
                     # self.log.warning('Meta-opt. rollout ok.')
 
-                if wirte_model_summary:
+                if write_model_summary:
                     meta_model_summary = meta_fetched[-2]
                     model_summary = fetched[-1]
 
@@ -695,12 +695,12 @@ class AMLDG_2(AMLDG):
             while not done:
                 # self.log.warning('Roll #{}'.format(roll_num))
 
-                wirte_model_summary = \
+                write_model_summary = \
                     self.local_steps % self.model_summary_freq == 0
 
                 # if not is_target:
                 # Update pi_prime parameters wrt collected train data:
-                if wirte_model_summary:
+                if write_model_summary:
                     fetches = [self.train_op, self.train_aac.model_summary_op]
                 else:
                     fetches = [self.train_op]
@@ -744,7 +744,7 @@ class AMLDG_2(AMLDG):
                         self.test_aac.process_data(sess, test_data,is_train=True, pi=self.test_aac.local_network)
                     )
 
-                    if wirte_model_summary:
+                    if write_model_summary:
                         meta_fetches = [self.meta_train_op, self.test_aac.model_summary_op, self.inc_step]
                     else:
                         meta_fetches = [self.meta_train_op, self.inc_step]
@@ -759,7 +759,7 @@ class AMLDG_2(AMLDG):
 
                     # self.log.warning('Meta-opt. rollout ok.')
 
-                if wirte_model_summary:
+                if write_model_summary:
                     meta_model_summary = meta_fetched[-2]
                     model_summary = fetched[-1]
 
@@ -959,14 +959,14 @@ class AMLDG_3(AMLDG):
             while not done:
                 # self.log.warning('Roll #{}'.format(roll_num))
 
-                wirte_model_summary = \
+                write_model_summary = \
                     self.local_steps % self.model_summary_freq == 0
 
                 # Paranoid checks against data sampling logic faults to prevent possible cheating:
                 train_trial_chksum = np.average(train_data['on_policy'][0]['state']['metadata']['trial_num'])
 
                 # Update pi_prime parameters wrt collected train data:
-                if wirte_model_summary:
+                if write_model_summary:
                     fetches = [self.train_op, self.train_aac.model_summary_op]
                 else:
                     fetches = [self.train_op]
@@ -1027,7 +1027,7 @@ class AMLDG_3(AMLDG):
 
                 if not is_target:
                     # Update local pi_prime (with fast_learn_rate) and global shared parameters (via slow_learn_rate):
-                    if wirte_model_summary:
+                    if write_model_summary:
                         meta_fetches = [
                             self.meta_train_op,
                             self.local_meta_train_op,
@@ -1051,7 +1051,7 @@ class AMLDG_3(AMLDG):
                     meta_fetched = sess.run(meta_fetches, feed_dict=feed_dict) + [None, None]
                     # self.log.warning('Meta-opt. rollout ok.')
 
-                if wirte_model_summary:
+                if write_model_summary:
                     meta_model_summary = meta_fetched[-2]
                     model_summary = fetched[-1]
 

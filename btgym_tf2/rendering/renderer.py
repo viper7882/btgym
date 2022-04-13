@@ -234,7 +234,7 @@ class BTgymRendering():
             # Try to render given episode:
             #try:
                 # Get picture of entire episode:
-            #fig = cerebro.plot(plotter=self.plotter,  # Modified plotter class, doesnt actually save anything.
+            #fig = cerebro.plot(plotter=self.plotter,  # Modified plotter class, doesn't actually save anything.
             #                   savefig=True,
             #                   width=self.render_size_episode[0],
             #                   height=self.render_size_episode[1],

@@ -1,7 +1,7 @@
 import backtrader.indicators as btind
 
 from gym import spaces
-from btgym import DictSpace
+from btgym_tf2 import DictSpace
 
 import numpy as np
 from scipy import stats
@@ -117,7 +117,7 @@ class PairSpreadStrategy_0(BaseStrategy6):
         reward_scale=1,         # reward multiplicator
         norm_alpha=0.001,       # renormalisation tracking decay in []0, 1]
         norm_alpha_2=0.01,      # float in []0, 1], tracking decay for original prices
-        drawdown_call=10,       # finish episode when hitting drawdown treshghold, in percent.
+        drawdown_call=10,       # finish episode when hitting drawdown threshold, in percent.
         dataset_stat=None,      # Summary descriptive statistics for entire dataset and
         episode_stat=None,      # current episode. Got updated by server.
         time_dim=time_dim,      # time embedding period
@@ -176,7 +176,7 @@ class PairSpreadStrategy_0(BaseStrategy6):
         self.last_delta_total_pnl = 0
         self.last_pnl = 0
 
-        self.log.debug('startegy got broadcast_msg: <<{}>>'.format(self.p.broadcast_message))
+        self.log.debug('strategy got broadcast_msg: <<{}>>'.format(self.p.broadcast_message))
 
         # Track original prices statistics, let base self.norm_stat_tracker track spread (=stat_asset) itself:
         self.norm_stat_tracker_2 = Zscore(2, self.p.norm_alpha_2)
@@ -702,7 +702,7 @@ class PairSpreadStrategy_1(PairSpreadStrategy_0):
         reward_scale=1,  # reward multiplicator
         norm_alpha=0.001,  # renormalisation tracking decay in []0, 1]
         norm_alpha_2=0.01,  # float in []0, 1], tracking decay for original prices
-        drawdown_call=10,  # finish episode when hitting drawdown treshghold, in percent.
+        drawdown_call=10,  # finish episode when hitting drawdown threshold, in percent.
         dataset_stat=None,  # Summary descriptive statistics for entire dataset and
         episode_stat=None,  # current episode. Got updated by server.
         time_dim=time_dim,  # time embedding period

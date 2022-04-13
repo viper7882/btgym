@@ -1,5 +1,6 @@
+import inspect
 import os
-from btgym import BTgymEnv
+from btgym_tf2 import BTgymEnv
 import IPython.display as Display
 import PIL.Image as Image
 from gym import spaces
@@ -7,6 +8,7 @@ from gym import spaces
 import gym
 import numpy as np
 import random
+import traceback
 
 '''
 from keras.models import Sequential
@@ -91,6 +93,11 @@ class DQN:
         self.target_model.set_weights(target_weights)
 
     def save_model(self, fn):
+        print("{} Line: {}: fn: {}".format(
+            inspect.getframeinfo(inspect.currentframe()).function,
+            inspect.getframeinfo(inspect.currentframe()).lineno,
+            fn,
+        ))
         self.model.save(fn)
 
     def show_rendered_image(self, rgb_array):
@@ -115,58 +122,75 @@ class DQN:
 
 
 def main(filename):
-    env = BTgymEnv(filename=filename,
-                   state_shape={'raw': spaces.Box(low=-100, high=100, shape=(30, 4))},
-                   skip_frame=5,
-                   start_cash=100000,
-                   broker_commission=0.02,
-                   fixed_stake=100,
-                   connect_timeout=180,
-                   drawdown_call=90,
-                   render_state_as_image=True,
-                   render_ylabel='Price Lines',
-                   render_size_episode=(12, 8),
-                   render_size_human=(8, 3.5),
-                   render_size_state=(10, 3.5),
-                   render_dpi=75,
-                   multiprocessing=1,
-                   port=5000,
-                   data_port=4999,
-                   verbose=0, )
+    try:
+        # time_dim = 30
+        time_dim = 128
+        env = BTgymEnv(filename=filename,
+                       state_shape={'raw': spaces.Box(low=-100, high=100, shape=(time_dim, 4), dtype=np.float64)},
+                       skip_frame=5,
+                       start_cash=100000,
+                       broker_commission=0.02,
+                       fixed_stake=100,
+                       connect_timeout=180,
+                       drawdown_call=90,
+                       render_state_as_image=True,
+                       render_ylabel='Price Lines',
+                       render_size_episode=(12, 8),
+                       render_size_human=(8, 3.5),
+                       render_size_state=(10, 3.5),
+                       render_dpi=75,
+                       multiprocessing=1,
+                       # multiprocessing=0,
+                       port=5000,
+                       data_port=4999,
+                       verbose=0,
+                       # verbose=1,
+                       # verbose=2,
+                       )
 
-    env.reset()  # <=== CORRECTED HERE: fake reset() tells data_master to start data_server_process
+        env.reset()  # <=== CORRECTED HERE: fake reset() tells data_master to start data_server_process
 
-    gamma = 0.9
-    epsilon = .95
+        gamma = 0.9
+        epsilon = .95
 
-    trials = 10
-    trial_len = 1000
+        # trials = 10
+        trial_len = 1000
+        trials = 1
+        # trial_len = 1
 
-    # updateTargetNetwork = 1000
-    dqn_agent = DQN(env=env)
-    steps = []
-    for trial in range(trials):
-        # dqn_agent.model= load_model("./model.model")
-        cur_state = np.array(list(env.reset().items())[0][1])
-        cur_state = np.reshape(cur_state, (30, 4, 1))
-        for step in range(trial_len):
-            action = dqn_agent.act(cur_state)
-            new_state, reward, done, _ = env.step(action)
-            reward = reward * 10 if not done else -10
-            new_state = list(new_state.items())[0][1]
-            new_state = np.reshape(new_state, (30, 4, 1))
-            dqn_agent.target_train()  # iterates target model
+        save_model_dir = "./trained_model"
+        # updateTargetNetwork = 1000
+        dqn_agent = DQN(env=env)
+        steps = []
+        for trial in range(trials):
+            if trial > 0:
+                dqn_agent.model = load_model(save_model_dir)
+            cur_state = np.array(list(env.reset().items())[0][1])
+            cur_state = np.reshape(cur_state, (time_dim, 4, 1))
+            for step in range(trial_len):
+                action = dqn_agent.act(cur_state)
+                new_state, reward, done, _ = env.step(action)
+                reward = reward * 10 if not done else -10
+                new_state = list(new_state.items())[0][1]
+                new_state = np.reshape(new_state, (time_dim, 4, 1))
+                dqn_agent.target_train()  # iterates target model
 
-            cur_state = new_state
-            if done:
-                break
+                cur_state = new_state
+                if done:
+                    break
 
-        print("Completed trial #{} ".format(trial))
-        dqn_agent.render_all_modes(env)
-        dqn_agent.save_model("model.model".format(trial))
+            print("Completed trial #{} ".format(trial))
+            dqn_agent.render_all_modes(env)
+            os.makedirs(save_model_dir, exist_ok=True)
+            dqn_agent.save_model(save_model_dir)
+        env.close()
+    except Exception:
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
     dirPath = os.path.dirname(os.path.abspath(__file__))
     filePath = os.path.abspath(os.path.join(dirPath, './data/DAT_ASCII_EURUSD_M1_2016.csv'))
+    if not os.path.exists(filePath):
+        raise FileNotFoundError()
     main(filePath)
